@@ -1,0 +1,43 @@
+# Alpine-Contributor: Stuart Cardall <developer@it-offshore.co.uk>
+# Alpine-Maintainer: Stuart Cardall <developer@it-offshore.co.uk>
+# Maintainer: Aaron Bassett <abassett@qnx.com>
+pkgname=ffmpegthumbnailer
+pkgver=2.2.3
+pkgrel=0
+pkgdesc="Lightweight video thumbnailer that can be used by file managers"
+url="https://github.com/dirkvdb/ffmpegthumbnailer"
+arch="all"
+license="GPL-2.0-or-later"
+depends="libc++ libjpeg-turbo libpng ffmpeg-libavcodec ffmpeg-libavfilter ffmpeg-libavutil ffmpeg-libavformat"
+makedepends="ffmpeg-dev libpng-dev libjpeg-turbo-dev cmake ninja clang libc++-dev"
+subpackages="$pkgname-dev $pkgname-doc"
+source="$pkgname-$pkgver.tar.gz::https://github.com/dirkvdb/ffmpegthumbnailer/archive/refs/tags/$pkgver.tar.gz
+	ffmpeg8.patch
+	"
+
+build() {
+	CC="clang" \
+	CXX="clang++" \
+	cmake -B build -G Ninja \
+		-DCMAKE_BUILD_TYPE=MinSizeRel \
+		-DCMAKE_INSTALL_PREFIX:PATH=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DENABLE_GIO=ON \
+		-DENABLE_THUMBNAILER=ON
+	cmake --build build
+}
+
+check() {
+	cd build
+	ctest
+}
+
+package() {
+	DESTDIR="$pkgdir" cmake --install build
+}
+
+
+sha512sums="
+b1299c5ea8ae11ab5dd34bfe74d0b117fcd842f9a41e542120cfcb2faaf7a84f5253eb86951095df9afd7912a0faa921fe0274322cf500b9aed38de366751523  ffmpegthumbnailer-2.2.3.tar.gz
+7630673063884f400947f7bc542bcabc632c061c327bb14b4c0f5d03743151ce0e32871ec213ad3bb250b90cedf23440caf5bb57623eadd39f66973676c47582  ffmpeg8.patch
+"
